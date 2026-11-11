@@ -10,4 +10,4 @@ const char *platform_get_os_name(void);
  * Returns 0 on success, -1 on failure. */
 int platform_get_uptime(uint64_t *uptime_seconds);
 
-#endif
+#endif // ADAGCORE_PLATFORM_H

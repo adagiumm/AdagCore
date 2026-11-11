@@ -22,6 +22,7 @@ endif()
 
 add_executable(AdagCore
         src/main.c
+        src/format.c
         ${PLATFORM_SOURCES}
 )
 
