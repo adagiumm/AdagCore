@@ -18,3 +18,21 @@ int platform_get_uptime(uint64_t *uptime_seconds)
     *uptime_seconds = (uint64_t)GetTickCount64() / 1000;
     return 0;
 }
+
+int platform_get_memory(MemoryInfo *info)
+{
+    if (info == NULL) {
+        return -1;
+    }
+
+    MEMORYSTATUSEX st;
+    st.dwLength = sizeof(st);
+
+    if (!GlobalMemoryStatusEx(&st)) {
+        return -1;
+    }
+
+    info->total_kb     = st.ullTotalPhys / 1024;
+    info->available_kb = st.ullAvailPhys / 1024;
+    return 0;
+}
