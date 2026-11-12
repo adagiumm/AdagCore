@@ -13,6 +13,16 @@ static void handle_sigint(int sig)
     running = 0;
 }
 
+static double cpu_usage_percent(CpuTimes prev, CpuTimes cur)
+{
+    uint64_t d_total = cur.total - prev.total;
+    uint64_t d_busy  = cur.busy  - prev.busy;
+    if (d_total == 0) {
+        return 0.0;
+    }
+    return 100.0 * (double)d_busy / (double)d_total;
+}
+
 int main(void)
 {
     uint64_t uptime = 0;
@@ -20,6 +30,8 @@ int main(void)
     MemoryInfo mem;
 
     signal(SIGINT, handle_sigint);
+    CpuTimes prev = {0}, cur = {0};
+    int cpu_ok = (platform_get_cpu_times(&prev) == 0);
 
     while (running) {
         printf("\033[2J\033[H");   /* ANSI: cursor home + clear screen */
@@ -40,6 +52,13 @@ int main(void)
                    used_kb / 1024, mem.total_kb / 1024);
         } else {
             printf("RAM: unavailable\n");
+        }
+
+        if (cpu_ok && platform_get_cpu_times(&cur) == 0) {
+            printf("CPU: %.1f%%\n", cpu_usage_percent(prev, cur));
+            prev = cur;
+        } else {
+            printf("CPU: unavailable\n");
         }
 
         fflush(stdout);
