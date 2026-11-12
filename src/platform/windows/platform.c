@@ -41,3 +41,25 @@ void platform_sleep_ms(uint32_t ms)
 {
     Sleep(ms);
 }
+
+static uint64_t filetime_to_u64(FILETIME ft)
+{
+    return ((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+}
+
+int platform_get_cpu_times(CpuTimes *times)
+{
+    if (times == NULL) {
+        return -1;
+    }
+
+    FILETIME idle, kernel, user;
+    if (!GetSystemTimes(&idle, &kernel, &user)) {
+        return -1;
+    }
+
+    /* kernel time already includes idle time */
+    times->total = filetime_to_u64(kernel) + filetime_to_u64(user);
+    times->busy  = times->total - filetime_to_u64(idle);
+    return 0;
+}
