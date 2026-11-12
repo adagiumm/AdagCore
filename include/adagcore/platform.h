@@ -18,4 +18,7 @@ int platform_get_uptime(uint64_t *uptime_seconds);
 /* Fills *info. Returns 0 on success, -1 on failure. */
 int platform_get_memory(MemoryInfo *info);
 
+/* Sleeps for the given number of milliseconds. */
+void platform_sleep_ms(uint32_t ms);
+
 #endif // ADAGCORE_PLATFORM_H

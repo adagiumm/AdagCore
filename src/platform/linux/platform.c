@@ -4,6 +4,7 @@
 
 #include <inttypes.h>
 #include <stdio.h>
+#include <time.h>
 
 const char *platform_get_os_name(void)
 {
@@ -61,4 +62,12 @@ int platform_get_memory(MemoryInfo *info)
 
     fclose(f);
     return (found == 3) ? 0 : -1;
+}
+
+void platform_sleep_ms(uint32_t ms)
+{
+    struct timespec ts;
+    ts.tv_sec  = ms / 1000;
+    ts.tv_nsec = (long)(ms % 1000) * 1000000L;
+    nanosleep(&ts, NULL);
 }

@@ -36,3 +36,8 @@ int platform_get_memory(MemoryInfo *info)
     info->available_kb = st.ullAvailPhys / 1024;
     return 0;
 }
+
+void platform_sleep_ms(uint32_t ms)
+{
+    Sleep(ms);
+}
