@@ -75,3 +75,27 @@ void platform_sleep_ms(uint32_t ms) {
     ts.tv_nsec = (long) (ms % 1000) * 1000000L;
     nanosleep(&ts, NULL);
 }
+
+int platform_get_cpu_times(CpuTimes *times)
+{
+    if (times == NULL) {
+        return -1;
+    }
+
+    host_cpu_load_info_data_t load;
+    mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
+
+    if (host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO,
+                        (host_info_t)&load, &count) != KERN_SUCCESS) {
+        return -1;
+                        }
+
+    uint64_t user = load.cpu_ticks[CPU_STATE_USER];
+    uint64_t sys  = load.cpu_ticks[CPU_STATE_SYSTEM];
+    uint64_t nice = load.cpu_ticks[CPU_STATE_NICE];
+    uint64_t idle = load.cpu_ticks[CPU_STATE_IDLE];
+
+    times->busy  = user + sys + nice;
+    times->total = times->busy + idle;
+    return 0;
+}

@@ -8,6 +8,11 @@ typedef struct {
     uint64_t available_kb;
 } MemoryInfo;
 
+typedef struct {
+    uint64_t busy; /* ticks spent working */
+    uint64_t total; /* all ticks, busy + idle */
+} CpuTimes;
+
 /* Returns a static string like "Linux". Never NULL, never freed by caller. */
 const char *platform_get_os_name(void);
 
@@ -20,5 +25,9 @@ int platform_get_memory(MemoryInfo *info);
 
 /* Sleeps for the given number of milliseconds. */
 void platform_sleep_ms(uint32_t ms);
+
+/* Fills *times with cumulative counters since boot.
+ * Returns 0 on success, -1 on failure. */
+int platform_get_cpu_times(CpuTimes *times);
 
 #endif // ADAGCORE_PLATFORM_H

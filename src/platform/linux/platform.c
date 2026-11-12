@@ -71,3 +71,31 @@ void platform_sleep_ms(uint32_t ms)
     ts.tv_nsec = (long)(ms % 1000) * 1000000L;
     nanosleep(&ts, NULL);
 }
+
+int platform_get_cpu_times(CpuTimes *times)
+{
+    if (times == NULL) {
+        return -1;
+    }
+
+    FILE *f = fopen("/proc/stat", "r");
+    if (f == NULL) {
+        return -1;
+    }
+
+    uint64_t user, nice, sys, idle, iowait, irq, softirq, steal;
+    int matched = fscanf(f, "cpu %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64
+                            " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64,
+                         &user, &nice, &sys, &idle,
+                         &iowait, &irq, &softirq, &steal);
+    fclose(f);
+
+    if (matched != 8) {
+        return -1;
+    }
+
+    uint64_t idle_all = idle + iowait;
+    times->total = user + nice + sys + idle_all + irq + softirq + steal;
+    times->busy  = times->total - idle_all;
+    return 0;
+}
